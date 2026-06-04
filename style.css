@@ -15,163 +15,148 @@ body {
 }
 
 /* ==========================================================================
-   HEADER / NAVBAR BEAUTIFY
+   DESKTOP HEADER VIEW Base config
    ========================================================================== */
-header {
-    background: #1a1a1a !important;
-    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.15);
+.main-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 15px 5%;
+  background: #1a1a1a;
+  color: white;
+  position: sticky;
+  top: 0;
+  z-index: 100;
+}
+.main-header h1 { margin: 0; color: #2ec4b6; }
+
+.search-container { position: relative; display: inline-block; }
+#search {
+  padding: 10px 40px 10px 15px;
+  width: 300px;
+  border-radius: 25px;
+  border: 1px solid #ccc !important;
+  outline: none;
+  background: #ffffff !important;
+  color: #000000 !important;
+  font-size: 14px;
+  font-weight: 500;
+}
+.search-icon {
+  position: absolute; right: 15px; top: 50%; transform: translateY(-50%);
+  color: #2ec4b6; font-size: 16px; pointer-events: none; font-weight: bold;
 }
 
-header button {
-    border-radius: 25px !important;
-    font-weight: bold;
-    transition: transform 0.2s ease, background-color 0.2s;
+.header-buttons { display: flex; align-items: center; gap: 10px; }
+.header-buttons button {
+  border: none; padding: 10px 15px; border-radius: 25px !important;
+  cursor: pointer; font-weight: bold; display: flex; align-items: center; gap: 5px;
+  transition: transform 0.2s ease;
 }
-
-header button:hover {
-    transform: translateY(-2px);
-}
+.header-buttons button:hover { transform: translateY(-2px); }
+.btn-wishlist { background: #ff4d4d; color: white; }
+.btn-cart { background: #2ec4b6; color: white; }
+.btn-theme { background: #ffb703; color: #1a1a1a; }
 
 /* ==========================================================================
-   CATEGORIES BUTTONS
+   CATEGORIES NAVIGATION
    ========================================================================== */
+.categories { display: flex; justify-content: center; gap: 15px; margin: 25px 0; }
 .categories button {
-    border-radius: 25px !important;
-    padding: 8px 20px !important;
-    border: 1px solid #ddd !important;
-    background: white;
-    font-weight: bold;
-    cursor: pointer;
-    transition: all 0.2s ease;
+    border-radius: 25px !important; padding: 8px 20px !important;
+    border: 1px solid #ddd !important; background: white; font-weight: bold;
+    cursor: pointer; transition: all 0.2s ease;
 }
-
-.categories button:hover {
-    background: #f1f1f1;
-    transform: translateY(-1px);
-}
-
+.categories button:hover { background: #f1f1f1; transform: translateY(-1px); }
 .categories button.active {
-    background: #2ec4b6 !important;
-    color: white !important;
-    border-color: #2ec4b6 !important;
+    background: #2ec4b6 !important; color: white !important; border-color: #2ec4b6 !important;
     box-shadow: 0 4px 10px rgba(46, 196, 182, 0.3);
 }
 
 /* ==========================================================================
-   PRODUCTS GRID & CARDS (నీ ఒరిజినల్ పక్కా గ్రిడ్ లేఅవుట్)
+   PRODUCTS GRID & CLEAN CARDS
    ========================================================================== */
 .products {
     display: grid !important;
     grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)) !important;
-    gap: 25px !important;
-    padding: 0 5% !important;
-    margin-top: 20px;
+    gap: 25px !important; padding: 0 5% !important; margin-top: 20px;
 }
 
 .card {
-    background: white;
-    border-radius: 12px !important;
-    padding: 15px;
-    text-align: center;
-    box-shadow: 0 6px 18px rgba(0, 0, 0, 0.05);
-    border: 1px solid rgba(0,0,0,0.02);
-    position: relative;
-    transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275), box-shadow 0.3s !important;
+    background: white; border-radius: 12px !important; padding: 15px;
+    text-align: center; box-shadow: 0 6px 18px rgba(0, 0, 0, 0.05);
+    border: 1px solid rgba(0,0,0,0.02); position: relative !important;
+    display: flex; flex-direction: column; transition: transform 0.3s ease;
+}
+.card:hover { transform: translateY(-6px); }
+
+/* Unified Image Layout */
+.card img {
+    width: 100% !important; height: 180px !important;
+    object-fit: cover !important; border-radius: 8px !important; margin-bottom: 10px !important;
 }
 
-.card:hover {
-    transform: translateY(-6px);
-    box-shadow: 0 12px 25px rgba(0, 0, 0, 0.1);
-}
-
-/* ADD TO CART CARD BUTTON */
 .add-to-cart-btn {
-    width: 100%;
-    background: #f1f5f9;
-    color: #1e293b;
-    border: none;
-    padding: 10px;
-    border-radius: 8px;
-    font-weight: bold;
-    cursor: pointer;
-    margin-top: 10px;
-    transition: all 0.2s ease;
+    width: 100%; background: #f1f5f9; color: #1e293b; border: none; padding: 10px;
+    border-radius: 8px; font-weight: bold; cursor: pointer; margin-top: auto;
 }
-
-.card:hover .add-to-cart-btn {
-    background: #2ec4b6;
-    color: white;
-}
-
-/* ==========================================================================
-   MODAL WINDOWS OPEN/CLOSE FIX (ఇక్కడే మ్యాజిక్ లాక్ చేశా బ్రో!)
-   ========================================================================== */
-.modal-overlay {
-    display: none; /* Default ga hide అయి ఉంటుంది */
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    z-index: 1000;
-    justify-content: center;
-    align-items: center;
-    backdrop-filter: blur(6px);
-    background: rgba(0, 0, 0, 0.4) !important;
-}
-
-/* JS లో .open క్లాస్ యాడ్ అవ్వగానే పాపప్ డిస్‌ప్లే ఓపెన్ అవుతుంది */
-.modal-overlay.open {
-    display: flex !important;
-}
-
-.modal-box {
-    background: white;
-    border-radius: 16px !important;
-    padding: 25px !important;
-    max-width: 400px;
-    width: 90%;
-    text-align: center;
-    box-shadow: 0 15px 40px rgba(0,0,0,0.2) !important;
-    border: none !important;
-}
-
-.modal-buttons button {
-    border-radius: 20px !important;
-    padding: 8px 20px !important;
-    font-weight: bold;
-    border: none;
-    cursor: pointer;
-}
-
-/* ==========================================================================
-   DARK THEME OVERRIDES
-   ========================================================================== */
-body.dark-theme {
-    background-color: #121212;
-    color: #f3f4f6;
-}
-
-body.dark-theme .card {
-    background: #1e1e1e;
-    border-color: #2a2a2a;
-}
-
-body.dark-theme .card h3 { color: white; }
-body.dark-theme .add-to-cart-btn { background: #2a2a2a; color: #ccc; }
-body.dark-theme .card:hover .add-to-cart-btn { background: #2ec4b6; color: white; }
-body.dark-theme .categories button { background: #1e1e1e; color: #aaa; border-color: #2a2a2a !important; }
-body.dark-theme .categories button.active { background: #2ec4b6 !important; color: white !important; }
-body.dark-theme .modal-box { background: #1e1e1e; color: white; }
-body.dark-theme .modal-box h2 { color: white; }
+.card:hover .add-to-cart-btn { background: #2ec4b6; color: white; }
 
 /* TOAST ALERT */
 .toast {
-    background: #1e293b;
-    color: white;
-    padding: 10px 20px;
-    border-radius: 20px;
-    font-weight: 600;
-    box-shadow: 0 5px 15px rgba(0,0,0,0.2);
-    border-left: 4px solid #2ec4b6;
+    background: #1e293b; color: white; padding: 10px 20px; border-radius: 20px;
+    font-weight: 600; box-shadow: 0 5px 15px rgba(0,0,0,0.2); border-left: 4px solid #2ec4b6;
+}
+body.dark-theme { background-color: #121212; color: #f3f4f6; }
+body.dark-theme .card { background: #1e1e1e; border-color: #2a2a2a; }
+body.dark-theme .card h3 { color: white; }
+
+/* ==========================================================================
+   ULTRA FIXED MOBILE OVERRIDES
+   ========================================================================== */
+@media (max-width: 768px) {
+  .main-header { flex-direction: column !important; gap: 12px !important; padding: 12px !important; }
+  .main-header h1 { font-size: 24px !important; }
+  .search-container { width: 100% !important; }
+  #search { width: 100% !important; border-radius: 10px !important; padding: 8px 15px !important; }
+
+  /* Buttons Grid Structure Fixed */
+  .header-buttons { width: 100% !important; display: grid !important; grid-template-columns: repeat(3, 1fr) !important; gap: 6px !important; }
+  .header-buttons button {
+    padding: 6px 2px !important; border-radius: 8px !important; flex-direction: column !important;
+    justify-content: center !important; align-items: center !important; height: 50px !important; font-size: 10px !important;
+  }
+  .header-buttons .btn-text { font-size: 9px !important; white-space: normal !important; text-align: center; display: block !important; }
+
+  /* Swipe Categories Navigation */
+  .categories { justify-content: flex-start !important; overflow-x: auto !important; white-space: nowrap !important; padding: 5px 12px !important; margin: 15px 0 !important; gap: 8px !important; }
+  .categories::-webkit-scrollbar { display: none; }
+  .categories button { padding: 6px 14px !important; font-size: 13px !important; border-radius: 20px !important; }
+
+  /* Responsive 2 Column Layout Grid */
+  #products-container, .products { grid-template-columns: repeat(2, 1fr) !important; gap: 12px !important; padding: 0 12px 20px 12px !important; }
+  .card { padding: 10px !important; border-radius: 12px !important; }
+  .card img { height: 120px !important; border-radius: 8px !important; margin-bottom: 8px !important; }
+
+  /* ABSOLUTE FORCE: Completely vaporizes any wide teal bar structure */
+  .card div[style*="position: absolute"], 
+  .card div {
+    background: transparent !important; border: none !important; box-shadow: none !important;
+  }
+
+  /* Force clean round wishlist bubble overlay */
+  .wishlist-btn {
+    position: absolute !important;
+    top: 16px !important; right: 16px !important;
+    left: auto !important; bottom: auto !important;
+    width: 32px !important; height: 32px !important;
+    background: rgba(255, 255, 255, 0.95) !important;
+    border-radius: 50% !important;
+    display: flex !important; align-items: center !important; justify-content: center !important;
+    padding: 0 !important; margin: 0 !important;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.15) !important;
+    z-index: 10 !important; border: none !important; font-size: 15px !important;
+  }
+
+  .add-to-cart-btn { display: block !important; width: 100% !important; background: #2ec4b6 !important; color: white !important; font-size: 12px !important; padding: 8px 0 !important; border-radius: 6px !important; }
 }

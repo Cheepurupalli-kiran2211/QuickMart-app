@@ -1,6 +1,3 @@
-// ==========================================================================
-// 1. DATA ARRAY - 40 PRODUCTS
-// ==========================================================================
 const products = [
     { id: 1, name: "Fresh Apples", price: 120, category: "fruits", image: "https://images.unsplash.com/photo-1560806887-1e4cd0b6cbd6?w=400", fallback: "🍎" },
     { id: 2, name: "Organic Bananas", price: 60, category: "fruits", image: "https://images.unsplash.com/photo-1571771894821-ce9b6c11b08e?w=400", fallback: "🍌" },
@@ -44,12 +41,8 @@ const products = [
     { id: 40, name: "Crispy Rice Crackers", price: 75, category: "snacks", image: "https://images.unsplash.com/photo-1599490659213-e2b9527bb087?w=400", fallback: "🫓" }
 ];
 
-// ==========================================================================
-// 2. DYNAMIC PRODUCTS RENDER FUNCTION
-// ==========================================================================
 const productsContainer = document.getElementById('products-container');
-let wishlist = [];
-let cart = [];
+let wishlist = []; let cart = [];
 
 function displayProducts(productsList) {
     if (!productsContainer) return;
@@ -64,18 +57,14 @@ function displayProducts(productsList) {
         const isWishlisted = wishlist.some(item => item.id === product.id);
         const heartIcon = isWishlisted ? "❤️" : "🤍";
 
+        // Structured without absolute div traps
         card.innerHTML = `
-            <div class="img-wrapper" style="width:100%; height:180px; position:relative; overflow:hidden; border-radius:8px;">
-                <img src="${product.image}" alt="${product.name}" loading="lazy" referrerpolicy="no-referrer"
-                    onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';"
-                    style="width:100%; height:100%; object-fit:cover;">
-                <div class="emoji-fallback" style="display:none; width:100%; height:100%; background:#f3f4f6; justify-content:center; align-items:center; font-size:60px;">
-                    ${product.fallback}
-                </div>
-                <button class="wishlist-btn" style="position:absolute; top:10px; right:10px; background:white; border:none; border-radius:50%; width:35px; height:35px; font-size:18px; cursor:pointer; display:flex; justify-content:center; align-items:center; box-shadow:0 2px 5px rgba(0,0,0,0.2); z-index:10;">
-                    ${heartIcon}
-                </button>
+            <img src="${product.image}" alt="${product.name}" loading="lazy" referrerpolicy="no-referrer"
+                onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
+            <div class="emoji-fallback" style="display:none; width:100%; height:120px; background:#f3f4f6; justify-content:center; align-items:center; font-size:60px; border-radius:8px;">
+                ${product.fallback}
             </div>
+            <button class="wishlist-btn">${heartIcon}</button>
             <h3>${product.name}</h3>
             <p>Price: ₹${product.price}</p>
             <button class="add-to-cart-btn">Add to Cart</button>
@@ -86,302 +75,79 @@ function displayProducts(productsList) {
 
 displayProducts(products);
 
-// ==========================================================================
-// 3. DARK MODE LOGIC
-// ==========================================================================
 const themeToggleBtn = document.getElementById('theme-toggle');
-const currentTheme = localStorage.getItem('theme');
-
-if (currentTheme === 'dark') {
+if (localStorage.getItem('theme') === 'dark') {
     document.body.classList.add('dark-theme');
-    if (themeToggleBtn) themeToggleBtn.textContent = '☀️ Light Mode';
+    if (themeToggleBtn) themeToggleBtn.innerHTML = '<span class="btn-icon">☀️</span><span class="btn-text">Light Mode</span>';
 }
 
 if (themeToggleBtn) {
     themeToggleBtn.addEventListener('click', () => {
         document.body.classList.toggle('dark-theme');
-        let theme = 'light';
-        if (document.body.classList.contains('dark-theme')) {
-            theme = 'dark';
-            themeToggleBtn.textContent = '☀️ Light Mode';
-        } else {
-            themeToggleBtn.textContent = '🌙 Dark Mode';
-        }
+        let theme = document.body.classList.contains('dark-theme') ? 'dark' : 'light';
+        themeToggleBtn.innerHTML = theme === 'dark' ? '<span class="btn-icon">☀️</span><span class="btn-text">Light Mode</span>' : '<span class="btn-icon">🌙</span><span class="btn-text">Dark Mode</span>';
         localStorage.setItem('theme', theme);
     });
 }
 
-// ==========================================================================
-// 4. CATEGORY FILTER LOGIC
-// ==========================================================================
 const filterButtons = document.querySelectorAll('.categories button');
-
 if (filterButtons.length > 0) {
     filterButtons.forEach(button => {
         button.addEventListener('click', () => {
             filterButtons.forEach(btn => btn.classList.remove('active'));
             button.classList.add('active');
-
             const filterValue = button.getAttribute('data-filter');
-            const productCards = document.getElementsByClassName('card');
-
-            Array.from(productCards).forEach(card => {
-                const productCategory = card.getAttribute('data-category') || '';
-                if (filterValue === 'all' || productCategory === filterValue) {
-                    card.style.display = 'block';
-                } else {
-                    card.style.display = 'none';
-                }
+            Array.from(document.getElementsByClassName('card')).forEach(card => {
+                card.style.display = (filterValue === 'all' || card.getAttribute('data-category') === filterValue) ? 'flex' : 'none';
             });
         });
     });
 }
 
-// ==========================================================================
-// 5. LIVE SEARCH FILTER
-// ==========================================================================
 const searchInput = document.getElementById('search');
-
 if (searchInput) {
     searchInput.addEventListener('input', (e) => {
         const searchText = e.target.value.toLowerCase().trim();
-        const productCards = document.getElementsByClassName('card');
-
-        Array.from(productCards).forEach(card => {
-            const productName = card.querySelector('h3') ? card.querySelector('h3').textContent.toLowerCase() : '';
-            if (productName.includes(searchText)) {
-                card.style.display = 'block';
-            } else {
-                card.style.display = 'none';
-            }
+        Array.from(document.getElementsByClassName('card')).forEach(card => {
+            const h3 = card.querySelector('h3');
+            card.style.display = (h3 && h3.textContent.toLowerCase().includes(searchText)) ? 'flex' : 'none';
         });
     });
 }
 
-// ==========================================================================
-// 6. CART & WISHLIST UI LOGIC (పాత మోడల్ కి మ్యాచ్ అయ్యేలా ఫిక్స్డ్!)
-// ==========================================================================
 const cartCountEl = document.getElementById('cart-count');
 const totalPriceEl = document.getElementById('total-price');
 const wishlistCountEl = document.getElementById('wishlist-count');
 
-const checkoutBtn = document.getElementById('checkout-btn');
-const checkoutModal = document.getElementById('checkout-modal');
-const closeModalBtn = document.getElementById('close-modal-btn');
-const placeOrderBtn = document.getElementById('place-order-btn');
-const cartItemsListEl = document.getElementById('cart-items-list');
-
-const wishlistViewBtn = document.getElementById('wishlist-view-btn');
-const wishlistModal = document.getElementById('wishlist-modal');
-const closeWishlistBtn = document.getElementById('close-wishlist-btn');
-const wishlistItemsListEl = document.getElementById('wishlist-items-list');
-
-const modalCountEl = document.getElementById('modal-count');
-const modalTotalEl = document.getElementById('modal-total');
-
-// UPDATE CART UI
 function updateCartUI() {
-    let totalItems = cart.length;
-    let totalPrice = cart.reduce((sum, item) => sum + item.price, 0);
-
-    if(cartCountEl) cartCountEl.textContent = totalItems;
-    if(totalPriceEl) totalPriceEl.textContent = totalPrice;
-
-    if (modalCountEl) modalCountEl.textContent = totalItems;
-    if (modalTotalEl) modalTotalEl.textContent = totalPrice;
-
-    if (cartItemsListEl) {
-        cartItemsListEl.innerHTML = "";
-        if (cart.length === 0) {
-            cartItemsListEl.innerHTML = "<p style='color:gray; text-align:center;'>Your cart is empty</p>";
-        } else {
-            cart.forEach((item, index) => {
-                const itemRow = document.createElement('div');
-                itemRow.style.display = "flex";
-                itemRow.style.justifyContent = "space-between";
-                itemRow.style.alignItems = "center";
-                itemRow.style.margin = "10px 0";
-                itemRow.style.padding = "8px";
-                itemRow.style.background = "#f9f9f9";
-                itemRow.style.borderRadius = "6px";
-                itemRow.style.borderBottom = "1px solid #ddd";
-
-                itemRow.innerHTML = `
-                    <div style="text-align:left; color:#333; font-size:14px;">
-                        <span style="font-weight:bold;">${item.name}</span> <br>
-                        <span style="color:green; font-weight:600;">₹${item.price}</span>
-                    </div>
-                    <button class="remove-item-btn" data-index="${index}" 
-                        style="background:#ff4d4d; color:white; border:none; padding:5px 10px; border-radius:4px; cursor:pointer; font-size:12px; font-weight:bold;">
-                        ❌ Remove
-                    </button>
-                `;
-                cartItemsListEl.appendChild(itemRow);
-            });
-        }
-    }
+    if(cartCountEl) cartCountEl.textContent = cart.length;
+    if(totalPriceEl) totalPriceEl.textContent = cart.reduce((sum, item) => sum + item.price, 0);
 }
 
-// UPDATE WISHLIST UI (విష్‌లిస్ట్ ఐటమ్స్ మోడల్ లో క్లియర్ గా కనిపించడానికి)
-function updateWishlistUI() {
-    if (wishlistCountEl) wishlistCountEl.textContent = wishlist.length;
-
-    if (wishlistItemsListEl) {
-        wishlistItemsListEl.innerHTML = "";
-        if (wishlist.length === 0) {
-            wishlistItemsListEl.innerHTML = "<p style='color:gray; text-align:center;'>Your wishlist is empty ❤️</p>";
-        } else {
-            wishlist.forEach((item, index) => {
-                const itemRow = document.createElement('div');
-                itemRow.style.display = "flex";
-                itemRow.style.justifyContent = "space-between";
-                itemRow.style.alignItems = "center";
-                itemRow.style.margin = "10px 0";
-                itemRow.style.padding = "8px";
-                itemRow.style.background = "#fff5f5";
-                itemRow.style.borderRadius = "6px";
-                itemRow.style.borderBottom = "1px solid #ffe0e0";
-
-                itemRow.innerHTML = `
-                    <div style="text-align:left; color:#333; font-size:14px; flex:1;">
-                        <span style="font-weight:bold;">${item.name}</span> <br>
-                        <span style="color:#e63946; font-weight:600;">₹${item.price}</span>
-                    </div>
-                    <div>
-                        <button class="wishlist-to-cart-btn" data-id="${item.id}" style="background:#2ec4b6; color:white; border:none; padding:5px 8px; border-radius:4px; cursor:pointer; font-size:11px; margin-right:5px; font-weight:bold;">🛒 +Cart</button>
-                        <button class="wishlist-remove-btn" data-id="${item.id}" style="background:#ff4d4d; color:white; border:none; padding:5px 8px; border-radius:4px; cursor:pointer; font-size:11px; font-weight:bold;">❌ Remove</button>
-                    </div>
-                `;
-                wishlistItemsListEl.appendChild(itemRow);
-            });
-        }
-    }
-}
-
-// MASTER EVENT LISTENER (MAIN SCREEN CLICKS)
 if (productsContainer) {
     productsContainer.addEventListener('click', (e) => {
         const productCard = e.target.closest('.card');
         if (!productCard) return;
-        
         const pId = parseInt(productCard.getAttribute('data-id'));
         const matchedProduct = products.find(p => p.id === pId);
         if (!matchedProduct) return;
 
-        // Add to Cart
         if (e.target.classList.contains('add-to-cart-btn')) {
-            cart.push(matchedProduct);
-            updateCartUI();
-            showToast(`${matchedProduct.name} added to cart! 🛒`);
+            cart.push(matchedProduct); updateCartUI(); showToast(`${matchedProduct.name} added! 🛒`);
         }
-
-        // Toggle Wishlist
         if (e.target.classList.contains('wishlist-btn')) {
             const index = wishlist.findIndex(item => item.id === matchedProduct.id);
-            if (index === -1) {
-                wishlist.push(matchedProduct);
-                e.target.textContent = "❤️";
-                showToast(`Added to Wishlist! ❤️`);
-            } else {
-                wishlist.splice(index, 1);
-                e.target.textContent = "🤍";
-                showToast(`Removed from Wishlist! 🤍`);
-            }
-            updateWishlistUI();
+            if (index === -1) { wishlist.push(matchedProduct); e.target.textContent = "❤️"; }
+            else { wishlist.splice(index, 1); e.target.textContent = "🤍"; }
+            if(wishlistCountEl) wishlistCountEl.textContent = wishlist.length;
         }
     });
 }
 
-// WISHLIST MODAL CLICKS (+Cart & Remove)
-if (wishlistItemsListEl) {
-    wishlistItemsListEl.addEventListener('click', (e) => {
-        const pId = parseInt(e.target.getAttribute('data-id'));
-        if (!pId) return;
-
-        const matchedProduct = products.find(p => p.id === pId);
-        const index = wishlist.findIndex(item => item.id === pId);
-
-        if (e.target.classList.contains('wishlist-to-cart-btn')) {
-            cart.push(matchedProduct);
-            updateCartUI();
-            showToast(`${matchedProduct.name} added to cart! 🛒`);
-        }
-
-        if (e.target.classList.contains('wishlist-remove-btn')) {
-            if (index !== -1) wishlist.splice(index, 1);
-            showToast(`Removed from Wishlist! ❌`);
-        }
-        
-        updateWishlistUI();
-        displayProducts(products); 
-    });
-}
-
-// REMOVE FROM CART INSIDE MODAL
-if (cartItemsListEl) {
-    cartItemsListEl.addEventListener('click', (e) => {
-        if (e.target.classList.contains('remove-item-btn')) {
-            const indexToRemove = parseInt(e.target.getAttribute('data-index'));
-            const removedItemName = cart[indexToRemove].name;
-            
-            cart.splice(indexToRemove, 1);
-            updateCartUI();
-            showToast(`${removedItemName} removed! ❌`);
-        }
-    });
-}
-
-// OPEN / CLOSE CHECKOUT MODAL (పాత CSS క్లాస్ ని ఆన్/ఆఫ్ చేస్తుంది బ్రో)
-if (checkoutBtn) {
-    checkoutBtn.addEventListener('click', () => {
-        if (cart.length === 0) {
-            showToast("Your cart is empty! Add some products first. 🛍️");
-            return;
-        }
-        updateCartUI();
-        if (checkoutModal) checkoutModal.classList.add('open');
-    });
-}
-if (closeModalBtn) {
-    closeModalBtn.addEventListener('click', () => {
-        if (checkoutModal) checkoutModal.classList.remove('open');
-    });
-}
-
-// OPEN / CLOSE WISHLIST MODAL
-if (wishlistViewBtn) {
-    wishlistViewBtn.addEventListener('click', () => {
-        updateWishlistUI();
-        if (wishlistModal) wishlistModal.classList.add('open'); // పాత క్లాస్ స్టైల్స్ ఓపెన్ చేస్తుంది!
-    });
-}
-if (closeWishlistBtn) {
-    closeWishlistBtn.addEventListener('click', () => {
-        if (wishlistModal) wishlistModal.classList.remove('open');
-    });
-}
-
-// PLACE ORDER
-if (placeOrderBtn) {
-    placeOrderBtn.addEventListener('click', () => {
-        alert("🎉 Order Placed Successfully! Your items will arrive in minutes.");
-        cart = [];
-        updateCartUI();
-        if (checkoutModal) checkoutModal.classList.remove('open');
-    });
-}
-
-// TOAST HELPER
-function showToast(message) {
-    const toastContainer = document.getElementById('toast-container');
-    if (toastContainer) {
-        const toast = document.createElement('div');
-        toast.className = 'toast';
-        toast.textContent = message;
-        toastContainer.appendChild(toast);
-        
-        setTimeout(() => {
-            toast.remove();
-        }, 2300);
+function showToast(msg) {
+    const box = document.getElementById('toast-container');
+    if (box) {
+        const t = document.createElement('div'); t.className = 'toast'; t.textContent = msg; box.appendChild(t);
+        setTimeout(() => t.remove(), 2000);
     }
 }
