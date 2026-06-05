@@ -96,20 +96,62 @@ body {
     object-fit: cover !important; border-radius: 8px !important; margin-bottom: 10px !important;
 }
 
+/* Desktop Wishlist Circle button layout overlay rules */
+.wishlist-btn {
+    position: absolute !important;
+    top: 15px !important; right: 15px !important;
+    width: 32px !important; height: 32px !important;
+    background: rgba(255, 255, 255, 0.9) !important;
+    border-radius: 50% !important;
+    display: flex !important; align-items: center !important; justify-content: center !important;
+    border: none !important; font-size: 16px !important; cursor: pointer !important;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.1) !important; z-index: 5;
+}
+
 .add-to-cart-btn {
     width: 100%; background: #f1f5f9; color: #1e293b; border: none; padding: 10px;
     border-radius: 8px; font-weight: bold; cursor: pointer; margin-top: auto;
 }
 .card:hover .add-to-cart-btn { background: #2ec4b6; color: white; }
 
-/* TOAST ALERT */
+/* TOAST ALERT WITH RE-ALIGNED SLIDE IN ANIMATIONS */
 .toast {
-    background: #1e293b; color: white; padding: 10px 20px; border-radius: 20px;
-    font-weight: 600; box-shadow: 0 5px 15px rgba(0,0,0,0.2); border-left: 4px solid #2ec4b6;
+    background: #1e293b !important; color: white !important; 
+    padding: 12px 22px !important; border-radius: 8px !important;
+    font-weight: 600; box-shadow: 0 5px 15px rgba(0,0,0,0.2); 
+    border-left: 4px solid #2ec4b6 !important;
+    animation: toastSlideIn 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
 }
+
+@keyframes toastSlideIn {
+    from { transform: translateY(20px); opacity: 0; }
+    to { transform: translateY(0); opacity: 1; }
+}
+
 body.dark-theme { background-color: #121212; color: #f3f4f6; }
 body.dark-theme .card { background: #1e1e1e; border-color: #2a2a2a; }
 body.dark-theme .card h3 { color: white; }
+
+/* CSS Variable states tracking inside active theme blocks */
+body.dark-theme {
+    --bg-card: #1e1e1e;
+    --text-color: #f3f4f6;
+    --input-bg: #2d2d2d;
+    --input-border: #444;
+}
+body {
+    --bg-card: #ffffff;
+    --text-color: #333333;
+    --input-bg: #ffffff;
+    --input-border: #cccccc;
+}
+
+/* Dynamic input control variables mapping for checkout forms */
+.qm-input-field {
+    background: var(--input-bg) !important;
+    color: var(--text-color) !important;
+    border: 1px solid var(--input-border) !important;
+}
 
 /* ==========================================================================
    ULTRA FIXED MOBILE OVERRIDES
