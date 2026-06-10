@@ -8,7 +8,30 @@
 </head>
 <body>
 
-    <!-- FIXED HEADER -->
+    <div id="qm-auth-screen" style="position:fixed; top:0; left:0; width:100%; height:100%; background:#121212; z-index:9999; display:flex; justify-content:center; align-items:center; padding:20px; box-sizing:border-box;">
+        <div style="background:#1a1a1a; color:#ffffff; padding:35px; border-radius:16px; max-width:400px; width:100%; box-shadow:0 15px 35px rgba(0,0,0,0.6); border:1px solid #2ec4b6; text-align:center;">
+            <h1 style="color:#2ec4b6; margin:0 0 5px 0; font-size:32px;">QuickMart</h1>
+            <h3 id="auth-title" style="margin:0 0 10px 0; color:#fff; font-size:20px;">Create your account</h3>
+            <p id="auth-subtitle" style="margin:0 0 25px 0; font-size:13px; color:#aaa;">Set your custom username and password to start shopping.</p>
+            
+            <div id="auth-error" style="color:#ff4d4d; font-size:12px; font-weight:bold; margin-bottom:15px; display:none; text-align:left;"></div>
+            
+            <div style="text-align:left; margin-bottom:15px;">
+                <label style="font-size:12px; font-weight:600; color:#2ec4b6; display:block; margin-bottom:5px;">Custom Username *</label>
+                <input type="text" id="auth-user" placeholder="Choose your username..." style="width:100%; padding:12px; border-radius:8px; border:1px solid #333; background:#222; color:#fff; outline:none; box-sizing:border-box;">
+            </div>
+            
+            <div style="text-align:left; margin-bottom:25px;">
+                <label style="font-size:12px; font-weight:600; color:#2ec4b6; display:block; margin-bottom:5px;">Secure Password *</label>
+                <input type="password" id="auth-pass" placeholder="Choose your password..." style="width:100%; padding:12px; border-radius:8px; border:1px solid #333; background:#222; color:#fff; outline:none; box-sizing:border-box;">
+            </div>
+            
+            <button id="auth-submit-btn" style="width:100%; background:#2ec4b6; color:white; border:none; padding:14px; border-radius:8px; font-size:16px; font-weight:bold; cursor:pointer; transition:background 0.2s; margin-bottom:15px;">Sign Up Now 🚀</button>
+            
+            <span id="auth-switch-link" style="color:#2ec4b6; font-size:13px; cursor:pointer; text-decoration:underline;">Already have an account? Login</span>
+        </div>
+    </div>
+
     <header class="main-header">
         <h1>QuickMart</h1>
         
@@ -32,10 +55,14 @@
                 <span class="btn-icon">🌙</span>
                 <span class="btn-text">Dark Mode</span>
             </button>
+
+            <button id="logout-btn" style="background:#ff4d4d; color:white; border:none; padding:10px 15px; border-radius:25px; cursor:pointer; font-weight:bold; display:flex; align-items:center; gap:5px;">
+                <span class="btn-icon">🚪</span>
+                <span class="btn-text">Logout</span>
+            </button>
         </div>
     </header>
 
-    <!-- CATEGORIES -->
     <div class="categories">
         <button data-filter="all" class="active">All</button>
         <button data-filter="fruits">🍎 Fruits</button>
@@ -44,7 +71,6 @@
         <button data-filter="snacks">🍪 Snacks</button>
     </div>
 
-    <!-- PRODUCTS CONTAINER -->
     <section class="products" id="products-container"></section>
 
     <div id="toast-container" style="position: fixed; bottom: 20px; right: 20px; z-index: 1100; display: flex; flex-direction: column; gap: 10px;"></div>

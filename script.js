@@ -1,3 +1,7 @@
+/* ==========================================================================
+   QUICKMART MAIN JAVASCRIPT ENGINE (FULLY OPTIMIZED WITH LIVE LOGOUT)
+   ========================================================================== */
+
 const products = [
     { id: 1, name: "Fresh Apples", price: 120, category: "fruits", image: "https://images.unsplash.com/photo-1560806887-1e4cd0b6cbd6?w=400", fallback: "🍎" },
     { id: 2, name: "Organic Bananas", price: 60, category: "fruits", image: "https://images.unsplash.com/photo-1571771894821-ce9b6c11b08e?w=400", fallback: "🍌" },
@@ -42,9 +46,101 @@ const products = [
 ];
 
 const productsContainer = document.getElementById('products-container');
-let wishlist = []; let cart = [];
+let isSignUpMode = true; 
 
-// Create Overlay Container for Cart and Wishlist Modals dynamically
+function initDynamicAuth() {
+    const authScreen = document.getElementById('qm-auth-screen');
+    if (!authScreen) return;
+
+    if (localStorage.getItem('qm-logged-in') === 'true') {
+        authScreen.style.display = 'none';
+    } else {
+        authScreen.style.display = 'flex';
+    }
+
+    const titleEl = document.getElementById('auth-title');
+    const subtitleEl = document.getElementById('auth-subtitle');
+    const submitBtn = document.getElementById('auth-submit-btn');
+    const switchLink = document.getElementById('auth-switch-link');
+    const errBox = document.getElementById('auth-error');
+
+    if (switchLink) {
+        switchLink.onclick = () => {
+            isSignUpMode = !isSignUpMode;
+            errBox.style.display = 'none';
+            
+            if (isSignUpMode) {
+                titleEl.textContent = "Create Account, Bro!";
+                subtitleEl.textContent = "Set your custom username and password to start shopping.";
+                submitBtn.textContent = "Sign Up Now 🚀";
+                switchLink.textContent = "Already have an account? Login";
+            } else {
+                titleEl.textContent = "Welcome Back, Bro!";
+                subtitleEl.textContent = "Enter your custom details to log back into your store.";
+                submitBtn.textContent = "Sign In Securely 🔒";
+                switchLink.textContent = "New here? Create an account";
+            }
+        };
+    }
+
+    if (submitBtn) {
+        submitBtn.onclick = () => {
+            const usernameInput = document.getElementById('auth-user').value.trim();
+            const passwordInput = document.getElementById('auth-pass').value.trim();
+
+            if (!usernameInput || !passwordInput) {
+                errBox.textContent = "Fields can't be empty, bro!";
+                errBox.style.display = 'block';
+                return;
+            }
+
+            if (isSignUpMode) {
+                localStorage.setItem('qm-custom-user', usernameInput.toLowerCase());
+                localStorage.setItem('qm-custom-pass', passwordInput);
+                
+                isSignUpMode = false;
+                titleEl.textContent = "Welcome Back, Bro!";
+                subtitleEl.textContent = "Account Created! Now sign in with your custom details.";
+                submitBtn.textContent = "Sign In Securely 🔒";
+                switchLink.textContent = "New here? Create an account";
+                
+                document.getElementById('auth-user').value = "";
+                document.getElementById('auth-pass').value = "";
+                errBox.style.display = 'none';
+                showToast("Account Created! Now Log In, Bro! 🎉");
+            } else {
+                const savedUser = localStorage.getItem('qm-custom-user');
+                const savedPass = localStorage.getItem('qm-custom-pass');
+
+                if (usernameInput.toLowerCase() === savedUser && passwordInput === savedPass) {
+                    errBox.style.display = 'none';
+                    localStorage.setItem('qm-logged-in', 'true');
+                    authScreen.style.display = 'none';
+                    showToast(`Welcome back, ${usernameInput}! 👋`);
+                } else {
+                    errBox.textContent = "Invalid username or password credentials, bro!";
+                    errBox.style.display = 'block';
+                }
+            }
+        };
+    }
+
+    // NEW LOGOUT TRIGGERS: Direct storage eraser setup wrapper
+    const logoutBtn = document.getElementById('logout-btn');
+    if(logoutBtn) {
+        logoutBtn.onclick = () => {
+            localStorage.removeItem('qm-logged-in'); // Removes active bypass token only
+            showToast("Logged out securely! 👋");
+            setTimeout(() => location.reload(), 800); // Dynamic page reloader
+        };
+    }
+}
+
+// LocalStorage Configurations for Arrays
+let wishlist = JSON.parse(localStorage.getItem('qm-wishlist')) || [];
+let cart = JSON.parse(localStorage.getItem('qm-cart')) || [];
+
+// Modal Overlay Container Setup
 const modalOverlay = document.createElement('div');
 modalOverlay.id = 'qm-modal-overlay';
 modalOverlay.style.cssText = 'position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.6); z-index:2000; display:none; justify-content:center; align-items:center; padding:20px; box-sizing:border-box;';
@@ -63,7 +159,6 @@ function displayProducts(productsList) {
         const isWishlisted = wishlist.some(item => item.id === product.id);
         const heartIcon = isWishlisted ? "❤️" : "🤍";
 
-        // Structured without absolute div traps
         card.innerHTML = `
             <img src="${product.image}" alt="${product.name}" loading="lazy" referrerpolicy="no-referrer"
                 onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
@@ -126,8 +221,15 @@ const totalPriceEl = document.getElementById('total-price');
 const wishlistCountEl = document.getElementById('wishlist-count');
 
 function updateCartUI() {
-    if(cartCountEl) cartCountEl.textContent = cart.length;
-    if(totalPriceEl) totalPriceEl.textContent = cart.reduce((sum, item) => sum + item.price, 0);
+    const totalItemsCount = cart.reduce((sum, item) => sum + item.quantity, 0);
+    const grandTotalPrice = cart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
+    
+    if(cartCountEl) cartCountEl.textContent = totalItemsCount;
+    if(totalPriceEl) totalPriceEl.textContent = grandTotalPrice;
+    if(wishlistCountEl) wishlistCountEl.textContent = wishlist.length;
+
+    localStorage.setItem('qm-cart', JSON.stringify(cart));
+    localStorage.setItem('qm-wishlist', JSON.stringify(wishlist));
 }
 
 if (productsContainer) {
@@ -139,13 +241,28 @@ if (productsContainer) {
         if (!matchedProduct) return;
 
         if (e.target.classList.contains('add-to-cart-btn')) {
-            cart.push(matchedProduct); updateCartUI(); showToast(`${matchedProduct.name} added! 🛒`);
+            const existingCartItem = cart.find(item => item.id === matchedProduct.id);
+            if (existingCartItem) {
+                existingCartItem.quantity += 1;
+            } else {
+                cart.push({ ...matchedProduct, quantity: 1 });
+            }
+            updateCartUI(); 
+            showToast(`${matchedProduct.name} added to cart! 🛒`);
         }
+        
         if (e.target.classList.contains('wishlist-btn')) {
             const index = wishlist.findIndex(item => item.id === matchedProduct.id);
-            if (index === -1) { wishlist.push(matchedProduct); e.target.textContent = "❤️"; showToast(`Added to Wishlist! ❤️`); }
-            else { wishlist.splice(index, 1); e.target.textContent = "🤍"; showToast(`Removed from Wishlist! 🤍`); }
-            if(wishlistCountEl) wishlistCountEl.textContent = wishlist.length;
+            if (index === -1) { 
+                wishlist.push(matchedProduct); 
+                e.target.textContent = "❤️"; 
+                showToast(`Added to Wishlist! ❤️`); 
+            } else { 
+                wishlist.splice(index, 1); 
+                e.target.textContent = "🤍"; 
+                showToast(`Removed from Wishlist! 🤍`); 
+            }
+            updateCartUI();
         }
     });
 }
@@ -158,15 +275,32 @@ function showToast(msg) {
     }
 }
 
-// ==========================================================================
-// DYNAMIC MODALS HANDLING (WISHLIST + CART ACTIONS WITH REMOVE & ADDRESS)
-// ==========================================================================
+function showCustomPopupAlert(title, message, isSuccess = true) {
+    const popupOverlay = document.createElement('div');
+    popupOverlay.style.cssText = 'position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.7); z-index:3000; display:flex; justify-content:center; align-items:center; padding:20px; box-sizing:border-box;';
+    
+    const alertBox = document.createElement('div');
+    alertBox.style.cssText = 'background:var(--bg-card, #fff); color:var(--text-color, #333); padding:30px; border-radius:15px; text-align:center; max-width:400px; width:100%; box-shadow:0 10px 30px rgba(0,0,0,0.5); border-top: 5px solid ' + (isSuccess ? '#2ec4b6;' : '#ff4d4d;');
+    
+    alertBox.innerHTML = `
+        <div style="font-size: 50px; margin-bottom: 15px;">${isSuccess ? '🎉' : '⚠️'}</div>
+        <h3 style="margin:0 0 10px 0; font-size:22px;">${title}</h3>
+        <p style="margin:0 0 20px 0; font-size:14px; opacity:0.8; line-height:1.5;">${message}</p>
+        <button id="close-alert-btn" style="background:${isSuccess ? '#2ec4b6' : '#ff4d4d'}; color:white; border:none; padding:10px 25px; border-radius:25px; font-weight:bold; cursor:pointer; width:100%;">Awesome, Bro!</button>
+    `;
+    
+    popupOverlay.appendChild(alertBox);
+    document.body.appendChild(popupOverlay);
+    
+    alertBox.querySelector('#close-alert-btn').addEventListener('click', () => {
+        popupOverlay.remove();
+    });
+}
 
 modalOverlay.addEventListener('click', (e) => {
     if(e.target === modalOverlay) modalOverlay.style.display = 'none';
 });
 
-// Wishlist View Trigger
 const wishlistViewBtn = document.getElementById('wishlist-view-btn');
 if (wishlistViewBtn) {
     wishlistViewBtn.addEventListener('click', () => {
@@ -193,7 +327,10 @@ function renderWishlistModal() {
                         <h4 style="margin:0; font-size:15px; color:inherit;">${item.name}</h4>
                         <p style="margin:3px 0 0 0; color:#2ec4b6; font-weight:bold;">₹${item.price}</p>
                     </div>
-                    <button class="remove-wishlist-item" data-index="${index}" style="background:#ff4d4d; color:white; border:none; padding:6px 12px; border-radius:20px; cursor:pointer; font-weight:bold; font-size:12px;">Remove</button>
+                    <div style="display:flex; gap:6px;">
+                        <button class="move-to-cart-from-wl" data-index="${index}" style="background:#2ec4b6; color:white; border:none; padding:6px 10px; border-radius:20px; cursor:pointer; font-weight:bold; font-size:11px;">Move to Cart 🛒</button>
+                        <button class="remove-wishlist-item" data-index="${index}" style="background:#ff4d4d; color:white; border:none; padding:6px 10px; border-radius:20px; cursor:pointer; font-weight:bold; font-size:11px;">✕</button>
+                    </div>
                 </div>
             `;
         });
@@ -208,11 +345,32 @@ function renderWishlistModal() {
     modalOverlay.appendChild(modal);
     modal.querySelector('#close-modal').addEventListener('click', () => modalOverlay.style.display = 'none');
     
+    modal.querySelectorAll('.move-to-cart-from-wl').forEach(btn => {
+        btn.addEventListener('click', (e) => {
+            const idx = parseInt(e.target.getAttribute('data-index'));
+            const selectedProduct = wishlist[idx];
+
+            const existingCartItem = cart.find(item => item.id === selectedProduct.id);
+            if (existingCartItem) {
+                existingCartItem.quantity += 1;
+            } else {
+                cart.push({ ...selectedProduct, quantity: 1 });
+            }
+
+            wishlist.splice(idx, 1);
+            
+            updateCartUI();
+            displayProducts(products); 
+            showToast(`Moved ${selectedProduct.name} to Cart! 🚀`);
+            renderWishlistModal(); 
+        });
+    });
+
     modal.querySelectorAll('.remove-wishlist-item').forEach(btn => {
         btn.addEventListener('click', (e) => {
             const idx = parseInt(e.target.getAttribute('data-index'));
             wishlist.splice(idx, 1);
-            if(wishlistCountEl) wishlistCountEl.textContent = wishlist.length;
+            updateCartUI();
             displayProducts(products); 
             showToast("Removed from Wishlist! 🤍");
             renderWishlistModal(); 
@@ -220,7 +378,6 @@ function renderWishlistModal() {
     });
 }
 
-// Cart/Checkout View Trigger
 const checkoutBtnView = document.getElementById('checkout-btn');
 if (checkoutBtnView) {
     checkoutBtnView.addEventListener('click', () => {
@@ -236,7 +393,7 @@ function renderCartModal() {
     modal.style.cssText = 'background:var(--bg-card, #fff); color:var(--text-color, #333); padding:25px; border-radius:12px; max-width:680px; width:100%; max-height:85vh; overflow-y:auto; box-shadow:0 10px 25px rgba(0,0,0,0.3); position:relative; border:1px solid rgba(0,0,0,0.1);';
     
     let itemsHTML = '';
-    const totalAmount = cart.reduce((sum, item) => sum + item.price, 0);
+    const totalAmount = cart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
 
     if(cart.length === 0) {
         itemsHTML = '<p style="text-align:center; padding:20px; font-weight:500;">Your Cart is empty, bro! Add items. 🛒</p>';
@@ -247,8 +404,15 @@ function renderCartModal() {
                     <span style="font-size:24px;">${item.fallback}</span>
                     <div style="flex:1;">
                         <h4 style="margin:0; font-size:14px; color:inherit;">${item.name}</h4>
-                        <p style="margin:3px 0 0 0; color:#2ec4b6; font-weight:bold;">₹${item.price}</p>
+                        <p style="margin:3px 0 0 0; color:#2ec4b6; font-weight:bold;">₹${item.price} x ${item.quantity}</p>
                     </div>
+                    
+                    <div style="display:flex; align-items:center; background:rgba(0,0,0,0.05); border-radius:20px; padding:2px;">
+                        <button class="qty-minus" data-index="${index}" style="border:none; background:none; cursor:pointer; width:24px; height:24px; font-weight:bold; color:inherit;">-</button>
+                        <span style="padding:0 8px; font-weight:bold; font-size:13px;">${item.quantity}</span>
+                        <button class="qty-plus" data-index="${index}" style="border:none; background:none; cursor:pointer; width:24px; height:24px; font-weight:bold; color:inherit;">+</button>
+                    </div>
+
                     <button class="remove-cart-item" data-index="${index}" style="background:#ff4d4d; color:white; border:none; padding:5px 10px; border-radius:6px; cursor:pointer; font-size:11px; font-weight:bold;">Remove</button>
                 </div>
             `;
@@ -260,12 +424,10 @@ function renderCartModal() {
         <h2 style="margin-top:0; margin-bottom:20px; border-bottom:2px solid #2ec4b6; padding-bottom:8px;">My Cart Layout</h2>
         
         <div style="display:flex; flex-direction:row; gap:20px; flex-wrap:wrap;">
-            <!-- Cart Items listing panel -->
             <div style="flex:1; min-width:260px; max-height:320px; overflow-y:auto; padding-right:5px;">
                 ${itemsHTML}
             </div>
             
-            <!-- Checkout Processing panel with Dynamic Address and Place Order Setup -->
             <div style="flex:1; min-width:260px; background:rgba(0,0,0,0.03); padding:15px; border-radius:8px; display:${cart.length === 0 ? 'none' : 'block'};">
                 <h3 style="margin-top:0; margin-bottom:12px; font-size:15px; color:inherit;">Delivery Address</h3>
                 <div id="address-err" style="color:#ff4d4d; font-size:12px; font-weight:bold; margin-bottom:8px; display:none;"></div>
@@ -288,6 +450,28 @@ function renderCartModal() {
     modalOverlay.appendChild(modal);
     modal.querySelector('#close-modal').addEventListener('click', () => modalOverlay.style.display = 'none');
     
+    modal.querySelectorAll('.qty-plus').forEach(btn => {
+        btn.addEventListener('click', (e) => {
+            const idx = parseInt(e.target.getAttribute('data-index'));
+            cart[idx].quantity += 1;
+            updateCartUI();
+            renderCartModal();
+        });
+    });
+
+    modal.querySelectorAll('.qty-minus').forEach(btn => {
+        btn.addEventListener('click', (e) => {
+            const idx = parseInt(e.target.getAttribute('data-index'));
+            if(cart[idx].quantity > 1) {
+                cart[idx].quantity -= 1;
+            } else {
+                cart.splice(idx, 1);
+            }
+            updateCartUI();
+            renderCartModal();
+        });
+    });
+
     modal.querySelectorAll('.remove-cart-item').forEach(btn => {
         btn.addEventListener('click', (e) => {
             const idx = parseInt(e.target.getAttribute('data-index'));
@@ -320,12 +504,22 @@ function renderCartModal() {
             }
 
             errBox.style.display = 'none';
-            alert(`Order Placed Successfully, Bro! 🎉\n\nDelivery Address:\n${house}, ${area},\nLandmark: ${landmark || 'None'},\nPincode: ${pincode}\n\nTotal Paid: ₹${totalAmount}`);
+            modalOverlay.style.display = 'none';
+
+            const addressString = `${house}, ${area}, Landmark: ${landmark || 'None'}, Pincode: ${pincode}`;
+            showCustomPopupAlert(
+                "Order Placed Successfully, Bro!", 
+                `Delivery Address:<br><b>${addressString}</b><br><br>Total Paid: <b>₹${totalAmount}</b>`, 
+                true
+            );
             
             cart = [];
             updateCartUI();
-            modalOverlay.style.display = 'none';
             showToast("Order Dispatched! 🚀");
         });
     }
 }
+
+// Global Core App Boot initialization execution
+initDynamicAuth();
+updateCartUI();
